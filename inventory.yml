@@ -1,0 +1,35 @@
+---
+all:
+  children:
+    ct:
+      hosts:
+        ct-01.naruby.local:
+          ct_user: naruby
+          vmid: 106
+        ct-02.naruby.local:
+
+          ct_user: naruby
+          vmid: 109
+    ovirt:
+      hosts:
+        ovirt.naruby.local:
+          description: "oVirt Engine"
+          user: naruby
+
+        ovirt-node-01.naruby.local:
+          description: "oVirt Node 01"
+          user: root
+
+    proxmox_hosts:
+      hosts:
+        homelab-01.naruby.local:
+          user: root
+        homelab-02.naruby.local:
+          user: root
+        homelab-03.naruby.local:
+          user: root
+  
+    homelab:
+      hosts:
+        homelab.naruby.local:
+          user: root
