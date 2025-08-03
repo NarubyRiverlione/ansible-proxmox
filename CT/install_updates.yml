@@ -1,11 +1,10 @@
----
 - name: Update & upgrade Ubuntu CTs
   hosts: ct
   become: true
   become_method: ansible.builtin.sudo
   vars:
     ansible_become_password: "{{ vault_naruby_password }}"
-    ansible_python_interpreter: /usr/bin/python3
+
   tags:
     - ct
   tasks:
@@ -17,18 +16,3 @@
       ansible.builtin.apt:
         upgrade: dist
         force_apt_get: true
-
-- name: Update & upgrade CentOS oVirt hosts
-  hosts: ovirt
-  become: true
-  become_method: ansible.builtin.sudo
-  vars:
-    ansible_become_password: "{{ vault_naruby_password }}"
-
-  tags:
-    - ovirt
-  tasks:
-    - name: Ensure all packages are up to date
-      ansible.builtin.dnf:
-        name: "*"
-        state: latest

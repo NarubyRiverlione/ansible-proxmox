@@ -1,0 +1,39 @@
+- name: Initialize CT hosts
+  hosts: ct
+  remote_user: root
+  gather_facts: false
+  vars:
+    ansible_user: root
+
+  tasks:
+    - name: Create user "{{ ct_user }}"
+      ansible.builtin.user:
+        name: "{{ ct_user }}"
+        state: present
+        groups: sudo
+        append: true
+
+    - name: Configure passwordless sudo for "{{ ct_user }}"
+      ansible.builtin.copy:
+        dest: "/etc/sudoers.d/{{ ct_user }}"
+        content: "{{ ct_user }} ALL=(ALL) NOPASSWD:ALL\n"
+        owner: root
+        group: root
+        mode: '0440'
+
+    - name: Ensure .ssh directory for "{{ ct_user }}"
+      ansible.builtin.file:
+        path: "/home/{{ ct_user }}/.ssh"
+        state: directory
+        owner: "{{ ct_user }}"
+        group: "{{ ct_user }}"
+        mode: '0700'
+
+    - name: Copy root’s authorized_keys to "{{ ct_user }}"
+      ansible.builtin.copy:
+        src: /root/.ssh/authorized_keys
+        remote_src: true
+        dest: "/home/{{ ct_user }}/.ssh/authorized_keys"
+        owner: "{{ ct_user }}"
+        group: "{{ ct_user }}"
+        mode: '0600'

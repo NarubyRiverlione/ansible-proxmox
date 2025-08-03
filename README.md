@@ -1,5 +1,14 @@
 # Proxmox Management
 
+## Development Setup
+
+To create and activate a project virtual environment and install dependencies, run:
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
 This directory contains Ansible playbooks and inventory for managing Proxmox on your homelab cluster. It defines a two-step authentication flow:
 
 1. **Bootstrapping**: connect as `root` to create the user defined by `ct_user`
@@ -66,5 +75,7 @@ ansible-playbook ct.yml --tags stop_ct
 ---
 
 ### Key Point: `gather_facts: false`
+
+> **Note**: Ignore the “couldn't resolve module/action 'community.proxmox.proxmox'” ansible-lint error. Also, YAML playbook files should not begin with `---`.
 
 Most playbooks set `gather_facts: false` to skip the default “setup” step and speed up execution when host facts are not required.

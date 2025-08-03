@@ -1,0 +1,29 @@
+- name: Start CT containers
+  hosts: homelab
+  connection: local
+  gather_facts: false
+  pre_tasks:
+    - name: Ensure proxmoxer and requests are installed in control venv
+      ansible.builtin.command: "{{ ansible_playbook_python }} -m pip install proxmoxer requests"
+      delegate_to: localhost
+      run_once: true
+  tags:
+    - ct-control
+  collections:
+    - community.proxmox
+  vars:
+    proxmox_api_key: "{{ vault_proxmox_password }}"
+    proxmox_api_user: "{{ vault_proxmox_user }}"
+    proxmox_validate_certs: false
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+  tasks:
+    - name: Start CT containers
+      community.proxmox.proxmox:
+        api_user: "{{ proxmox_api_user }}"
+        api_password: "{{ proxmox_api_key }}"
+        api_host: "{{ ansible_host }}"
+        vmid: "{{ hostvars[item].vmid }}"
+        state: started
+        validate_certs: "{{ proxmox_validate_certs }}"
+        timeout: 300
+      loop: "{{ groups['ct'] }}"

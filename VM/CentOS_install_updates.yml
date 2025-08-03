@@ -1,0 +1,14 @@
+- name: Update & upgrade CentOS oVirt hosts
+  hosts: ovirt
+  become: true
+  become_method: ansible.builtin.sudo
+  vars:
+    ansible_become_password: "{{ vault_naruby_password }}"
+
+  tags:
+    - ovirt
+  tasks:
+    - name: Ensure all packages are up to date
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
