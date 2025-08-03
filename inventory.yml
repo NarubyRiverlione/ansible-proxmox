@@ -6,9 +6,9 @@ all:
           ct_user: naruby
           vmid: 106
         ct-02.naruby.local:
-
           ct_user: naruby
           vmid: 109
+          
     ovirt:
       hosts:
         ovirt.naruby.local:
