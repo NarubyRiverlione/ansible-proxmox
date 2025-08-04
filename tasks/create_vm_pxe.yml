@@ -1,0 +1,25 @@
+- name: "Create PXE-boot VM {{ hostvars[item].name | default(item) }}"
+  community.proxmox.proxmox_kvm:
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_key }}"
+    api_host: "{{ ansible_host }}"
+    validate_certs: "{{ proxmox_validate_certs }}"
+    state: present
+    name: "{{ hostvars[item].name | default(item) }}"
+    vmid: "{{ hostvars[item].vmid }}"
+    node: "{{ hostvars[item].node | default('homelab-01') }}"
+    # Resources
+    memory: "{{ hostvars[item].memory_mb | default(2048) }}"
+    cores: "{{ hostvars[item].cores | default(2) }}"
+    # Disk (no ISO, plain disk so OS can be installed via PXE)
+    virtio0: "{{ hostvars[item].storage | default('proxmoxpool01') }}:{{ hostvars[item].disk_gb | default(20) }}G"
+    # Network and PXE boot order (BIOS by default)
+    net0: "virtio,bridge={{ hostvars[item].bridge | default('vmbr0') }}"
+    boot: "order=net0"
+    onboot: true
+    agent: 1
+    ostype: l26
+    # BIOS vs UEFI toggle - default BIOS PXE
+    bios: "{{ 'ovmf' if hostvars[item].use_uefi | default(false) else 'seabios' }}"
+  loop: "{{ groups['vm'] | default([]) }}"
+  when: groups['vm'] is defined and groups['vm'] | length > 0

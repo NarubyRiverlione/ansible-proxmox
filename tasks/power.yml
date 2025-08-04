@@ -1,0 +1,13 @@
+- name: Set power state for guests (filtered)
+  community.proxmox.proxmox:
+    api_user: "{{ proxmox_api_user }}"
+    api_password: "{{ proxmox_api_key }}"
+    api_host: "{{ ansible_host }}"
+    vmid: "{{ hostvars[item].vmid }}"
+    state: "{{ (desired_state | default('started') | lower | regex_replace('^start$', 'started') | regex_replace('^stop$', 'stopped')) }}"
+    validate_certs: "{{ proxmox_validate_certs }}"
+    timeout: 300
+  loop: "{{ groups[target_group | default('guests')] | default([]) }}"
+  when:
+    - hostvars[item].vmid is defined
+    - (hostvars[item].type | default(loop_type | default(''))) in [ '', loop_type | default('') ]

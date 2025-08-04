@@ -1,57 +1,90 @@
 ---
-- name: Start containers
+- name: Power manage Proxmox guests (generic)
   hosts: homelab
   strategy: linear
   connection: local
   gather_facts: false
   tags:
-    - ct-start
+    - power
+  vars:
+    proxmox_api_key: "{{ vault_proxmox_password }}"
+    proxmox_api_user: "{{ vault_proxmox_user }}"
+    proxmox_validate_certs: false
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    # Defaults: can be overridden via -e desired_state=stopped -e target_group=vm
+    desired_state: started # started|stopped
+    target_group: guests
+  tasks:
+    - name: Include power tasks
+      ansible.builtin.include_tasks: tasks/power.yml
+
+- name: Create PXE-boot VMs
+  hosts: homelab
+  strategy: linear
+  connection: local
+  gather_facts: false
+  tags:
+    - vm-create-pxe
   vars:
     proxmox_api_key: "{{ vault_proxmox_password }}"
     proxmox_api_user: "{{ vault_proxmox_user }}"
     proxmox_validate_certs: false
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
   tasks:
-    - name: Include start_ct tasks
-      ansible.builtin.include_tasks: tasks/start_ct.yml
+    - name: Include create_vm_pxe tasks
+      ansible.builtin.include_tasks: tasks/create_vm_pxe.yml
 
 - name: Create user
-  hosts: ct
+  hosts: guests
   remote_user: root
   gather_facts: false
   tags:
-    - ct-create-user
+    - guests-create-user
   vars:
     ansible_user: root
   tasks:
     - name: Include create_user tasks
       ansible.builtin.include_tasks: tasks/create_user.yml
 
-- name: Update & upgrade CTs
-  hosts:
-    - ct
-    - unify
+- name: Update & upgrade
+  hosts: guests, unify
   become: true
   become_method: ansible.builtin.sudo
   tags:
-    - ct-update
-    - ct-upgrade
+    - guests-update
+    - guests-upgrade
   vars:
     ansible_become_password: "{{ vault_naruby_password }}"
-    ansible_user: "{{ ct_user }}"
+    ansible_user: "{{ guest_user }}"
   tasks:
     - name: Include install_updates tasks
       ansible.builtin.include_tasks: tasks/install_updates.yml
 
-- name: Enable automatic security updates on Ubuntu CTs
-  hosts: ct
+- name: Enable automatic security updates on Ubuntu VMs
+  hosts: guests
   become: true
   become_method: ansible.builtin.sudo
   tags:
-    - ct-enable-auto-updates
+    - guests-enable-auto-updates
   vars:
     ansible_become_password: "{{ vault_naruby_password }}"
-    ansible_user: "{{ ct_user }}"
+    ansible_user: "{{ guest_user }}"
   tasks:
     - name: Include enable_auto_updates tasks
       ansible.builtin.include_tasks: tasks/enable_auto_updates.yml
+
+- name: Update & upgrade guests
+  hosts:
+    - guests
+    - unify
+  become: true
+  become_method: ansible.builtin.sudo
+  tags:
+    - guests-update
+    - guests-upgrade
+  vars:
+    ansible_become_password: "{{ vault_naruby_password }}"
+    ansible_user: "{{ guest_user }}"
+  tasks:
+    - name: Include install_updates tasks
+      ansible.builtin.include_tasks: tasks/install_updates.yml

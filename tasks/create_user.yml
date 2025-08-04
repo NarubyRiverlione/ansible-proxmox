@@ -1,31 +1,31 @@
-- name: Create user "{{ ct_user }}"
+- name: Create user "{{ guest_user }}"
   ansible.builtin.user:
-    name: "{{ ct_user }}"
+    name: "{{ guest_user }}"
     state: present
     groups: sudo
     append: true
 
-- name: Configure passwordless sudo for "{{ ct_user }}"
+- name: Configure passwordless sudo for "{{ guest_user }}"
   ansible.builtin.copy:
-    dest: "/etc/sudoers.d/{{ ct_user }}"
-    content: "{{ ct_user }} ALL=(ALL) NOPASSWD:ALL\n"
+    dest: "/etc/sudoers.d/{{ guest_user }}"
+    content: "{{ guest_user }} ALL=(ALL) NOPASSWD:ALL\n"
     owner: root
     group: root
-    mode: '0440'
+    mode: "0440"
 
-- name: Ensure .ssh directory for "{{ ct_user }}"
+- name: Ensure .ssh directory for "{{ guest_user }}"
   ansible.builtin.file:
-    path: "/home/{{ ct_user }}/.ssh"
+    path: "/home/{{ guest_user }}/.ssh"
     state: directory
-    owner: "{{ ct_user }}"
-    group: "{{ ct_user }}"
-    mode: '0700'
+    owner: "{{ guest_user }}"
+    group: "{{ guest_user }}"
+    mode: "0700"
 
-- name: Copy root’s authorized_keys to "{{ ct_user }}"
+- name: Copy root’s authorized_keys to "{{ guest_user }}"
   ansible.builtin.copy:
     src: /root/.ssh/authorized_keys
     remote_src: true
-    dest: "/home/{{ ct_user }}/.ssh/authorized_keys"
-    owner: "{{ ct_user }}"
-    group: "{{ ct_user }}"
-    mode: '0600'
+    dest: "/home/{{ guest_user }}/.ssh/authorized_keys"
+    owner: "{{ guest_user }}"
+    group: "{{ guest_user }}"
+    mode: "0600"
