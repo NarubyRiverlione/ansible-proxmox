@@ -1,12 +1,13 @@
 - name: Update & upgrade Ubuntu CTs
-  hosts: ct
+  hosts: 
+    - ct
+    - unify
   become: true
   become_method: ansible.builtin.sudo
   vars:
     ansible_become_password: "{{ vault_naruby_password }}"
     ansible_user: "{{ ct_user }}"
-  tags:
-    - ct
+
   tasks:
     - name: Update apt cache
       ansible.builtin.apt:

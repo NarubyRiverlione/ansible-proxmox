@@ -9,6 +9,14 @@ all:
           ct_user: naruby
           vmid: 109
           
+
+    unify:
+      hosts:
+        unify:
+          description: "UniFi controller for switch"
+          ct_user: root
+          vmid: 111
+          
     ovirt:
       hosts:
         ovirt.naruby.local:

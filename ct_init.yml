@@ -6,3 +6,6 @@
 
 - name: Update & upgrade Ubuntu CTs
   import_playbook: CT/install_updates.yml
+
+- name: Enable automatic security updates on Ubuntu CTs
+  import_playbook: CT/enable_auto_updates.yml
