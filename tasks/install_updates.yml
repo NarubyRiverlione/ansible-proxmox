@@ -1,0 +1,18 @@
+# Ubuntu tasks for installing updates
+- name: Update apt cache 
+  ansible.builtin.apt:
+    update_cache: true
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Perform dist-upgrade
+  ansible.builtin.apt:
+    upgrade: dist
+    force_apt_get: true
+  when: ansible_distribution == 'Ubuntu'
+
+ # CentOS tasks for installing updates
+- name: Ensure all CentOS packages are up to date
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+  when: ansible_distribution == 'CentOS'
